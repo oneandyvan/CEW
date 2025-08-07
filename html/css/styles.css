@@ -1,0 +1,44 @@
+/* Site-wide styles. */
+html {
+    scroll-behavior: smooth;
+}
+
+body 
+{
+    background: radial-gradient(circle at top, #060c60 , #8c6c9d);
+    margin-top: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: 200% 200%;
+}
+
+.btn
+{
+    color: #4b0c66;
+    border: 1px solid #4b0c66;
+    background-color: #ffffff;
+    font-family: 'Comfortaa', sans-serif;
+}
+
+.btn:hover, nav .nav-item .btn:hover
+{
+    color: white;
+    background-color: #6b1e94;
+    border-color: #6b1e94;
+    box-shadow: 1px 1px 1px 1px #4b0c666b;
+}
+
+.btn:focus, .buttons:focus
+{
+    color: white;
+    background-color: #6b1e94;
+    outline: 4px solid #ae6bd297;
+    outline-offset: 2px;
+}
+
+.material-symbols-outlined
+{
+    vertical-align: middle;
+}

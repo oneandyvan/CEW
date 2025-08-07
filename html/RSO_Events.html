@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>COP4710 | RSO Events</title>
+
+	<!-- Bootstrap Imports -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+	<script type="text/javascript" src="js/code.js"></script>
+	<link href="css/styles.css" rel="stylesheet">
+	<link href="css/events.css" rel="stylesheet">
+
+	<!-- Fonts/Icon Stylesheets -->
+    <link href="https://fonts.googleapis.com/css?family=DM+Sans" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Comfortaa" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+	<!--OpenStreetMap/Leaflet.js-->
+	<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+	<!-- Load in the university info associated with the user -->
+	<script type="text/javascript">
+		document.addEventListener('DOMContentLoaded', function()
+		{
+			loadUserInfo();
+			profilePerms(role);
+			fetchRSOs('RSOEvents', 'university');
+			fetchRSOEvents(userID);
+		}, false);
+	</script>
+
+</head>
+<body>
+	
+	<header>
+		<nav class="navbar navbar-expand-sm bg-light" id="nav">
+			<div class="container-fluid">
+				<!-- Pages -->
+				<ul class="navbar-nav flex-row" >
+					<li class="nav-item">
+						<a href="info.html" class="navbar-brand" style="color: rgb(75, 12, 102);">
+							<img src="images/logo.png" alt="Logo" style="width:45px;" class="rounded-pill">
+							College Event Website
+						</a>
+					</li>
+					<li class="nav-item px-2 perm-admin">
+						<a href="RSO.html" class="navbar">
+							RSOs
+						</a>
+					</li>
+					<li class="nav-item px-2 perm-admin perm-user">
+						<a href="RSO_Events.html" class="navbar">
+							RSO Events
+						</a>
+					</li>
+					<li class="nav-item px-2">
+						<a href="Private_Events.html" class="navbar">
+							Private Events
+						</a>
+					</li>
+					<li class="nav-item px-2">
+						<a href="Public_Events.html" class="navbar">
+							Public Events
+						</a>
+					</li>
+				</ul>
+				<!-- First name and logout button -->
+				<ul class="navbar-nav ms-auto">
+					<li class="nav-item navbar-text">
+						<span id="navUser" style="margin-right: 20px;">User (Role)</span>
+					</li>
+					<li class="nav-item">
+						<button class="btn" type="button" id="logoutButton" onclick="doLogout();">
+							<span class="material-symbols-outlined">logout</span>
+							Log out
+						</button>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+
+	<main>
+		<div id="accessUIDiv" class="justify-content-center" style="background-color: transparent;">
+			<div class="container justify-content-center my-5" >
+
+				<!-- CRUD Bar -->
+				<div id="searchAddBar" class="uiNavBar d-flex bg-light perm-admin">
+					<div class="uiBtn p-2 flex-grow-1 ms-3 my-1" style="text-align: start;">
+						<button id="addRSOEventButton" type="button" class="btn" data-bs-toggle="modal" data-bs-target="#addEvent" onclick="prepareAddEvent(true)">
+							Add RSO Event
+						</button>
+					</div>
+					<div class="uiBtn p-2 me-3 my-1">
+						<button id="addLocationButton" type="button" class="btn rounded-left" data-bs-toggle="modal" data-bs-target="#addLocation" onclick="addLocation()">
+							+ Add Location
+						</button>
+					</div>
+				</div>
+
+				<!--RSO Event Card Container-->
+				<div class="container mt-4">
+					<div class="row" id="rso-events-list">
+						<!-- Cards will be appended here dynamically using JavaScript -->
+					</div>
+				</div>
+
+
+				<!-- Add RSO Event modal -->
+				<div class="modal fade" id="addEvent" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							
+							<div class="modal-header">
+								<h5 class="modal-title">Add RSO Event</h5>
+								<button type="button" class="btn-close" aria-label="Close" aria-hidden="true" onclick="closeModalForm('addEvent');">
+								</button>
+							</div>
+
+							<form id="addEventForm">
+								<div class="modal-body">
+									<div class="mb-3">
+										<label for="addEventName" class="form-label">Event Name</label>
+										<input id="addEventName" class="form-control" type="text">
+									</div>
+									<div class="mb-3">
+										<label for="RSOOptions" class="form-label">Choose Existing RSO</label>
+										<select name="RSOOptions" class="form-control" id="addEventRSO" required></select>
+									</div>
+									<div id="ownRSOIssue" class="feedback text-danger" style="visibility: hidden;">
+										Can only create event for owned RSO!
+									</div>
+									<div class="mb-3">
+										<label for="EventTime" class="form-label">Choose Event Date and Time</label>
+										<input name="EventTime" class="form-control" type="datetime-local" id="addEventDateTime" required></input>
+									</div>
+									<div id="startHourIssue" class="feedback text-danger" style="visibility: hidden;">
+										Must pick a time at the top of a hour!
+									</div>
+									<div class="mb-3">
+										<label for="LocationOptions" class="form-label">Choose Existing Location</label>
+										<select name="LocationOptions" class="form-control" id="addEventLocation" required></select>
+									</div>
+									<div class="mb-3">
+										<label for="addEventPhone" class="form-label">Contact Phone</label>
+										<input id="addEventPhone" class="form-control" type="tel" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="ex: 654-802-9040" required>
+									</div>
+									<div class="mb-3">
+										<label for="addEventEmail" class="form-label">Contact Email</label>
+										<input id="addEventEmail" class="form-control" type="email" placeholder="ex: user@university.domain" required>
+									</div>
+								</div>
+							</form>
+
+							<div class="modal-footer d-flex justify-content-between">
+								<button id="addCancel" type="button" class="btn modalCancel float-start" onclick="closeModalForm('addEvent');">
+									Cancel
+								</button>
+								<!-- todo clean this up -->
+								<button type="button" class="btn modalSubmit" onclick="addRSOEvent()">
+									Submit
+								</button>
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+				<!-- View Event modal -->
+				<div class="modal fade" id="viewEvent" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-lg" role="document">
+						<div class="modal-content">
+							
+							<div class="modal-header">
+								<h5 class="modal-title">Event Location & Comments</h5>
+								<button type="button" class="btn-close" aria-label="Close" aria-hidden="true" onclick="closeModalForm('viewEvent');">
+								</button>
+							</div>
+								<div class="modal-body">
+									<form id="viewEventForm">
+										<div class="mb-3">
+											<label for="eventLocationName" class="form-label">Location Name</label>
+												<div id="eventLocationName" class="mb-4"></div>
+											<label for="eventLocationLongitude" class="form-label">Longitude</label>
+												<div id="eventLocationLongitude" class="mb-4"></div>
+											<label for="eventLocationLatitude" class="form-label">Latitude</label>
+												<div id="eventLocationLatitude" class="mb-4"></div>
+											</div>
+										</div>
+									</form>
+									<div class="pt-2 pb-3 rounded-bottom bg-light container" id="commentContainer">
+										<label for="eventCommentHeader" class="form-label fw-bold">Comments</label>
+
+										<div>
+											<textarea id="addCommentField" class="form-control mb-1" rows="3" placeholder="Add a comment..."></textarea>
+											<select id="addCommentRating">
+												<option value="1">1</option>
+												<option value="2">2</option>
+												<option value="3">3</option>
+												<option value="4">4</option>
+												<option value="5">5</option>
+											</select>
+											<button class="btn" id="addCommentButton">Add Comment</button>
+										</div>
+
+										<div class="row mt-1" id="comments-list">
+											
+										</div>
+									</div>
+								</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Add Location modal -->
+				<div class="modal fade" id="addLocation" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							
+							<div class="modal-header">
+								<h5 class="modal-title">Add New Location</h5>
+								<button type="button" class="btn-close" aria-label="Close" aria-hidden="true" onclick="closeModalForm('addLocation');">
+								</button>
+							</div>
+
+							<div class="modal-body">
+								<form id="addLocationForm">
+									<div class="mb-3">
+										<label for="addLocationName" class="form-label">Location Name</label>
+											<input id="addLocationName" class="form-control" type="text" placeholder="ex. UCF CB1, Room 103">
+										<div id="addLocationMap" style="height: 300px; width: 100%; margin-top: 1rem;"></div>
+										<div class="mt-2">
+											<label for="addLocationLongitude" class="form-label">Longitude</label>
+												<input id="addLocationLongitude" class="form-control" type="text">
+											<label for="addLocationLatitude" class="form-label">Latitude</label>
+												<input id="addLocationLatitude" class="form-control" type="text">
+										</div>
+									</div>
+								</form>
+							</div>
+
+							<div class="modal-footer d-flex justify-content-between">
+								<button id="addCancel" type="button" class="btn modalCancel float-start" onclick="closeModalForm('addLocation');">
+									Cancel
+								</button>
+								<!-- todo clean this up -->
+								<button type="submit" class="btn modalSubmit" onclick="addLocationSubmit();">
+									Submit
+								</button>
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		
+	</main>
+
+
+</body>
+</html>
