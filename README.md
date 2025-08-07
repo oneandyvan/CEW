@@ -9,15 +9,15 @@ This application was hosted locally on a M1 MacBook Air, using Docker to set up 
 
 In the repo directory is the source code and installation files:
 
-Docker Compose file, "docker-compose.yml" inside contains information for the database to create container with prerequisite technologies and set up pathing. This includes Apache, MySQL database, and phpMyAdmin images to be installed for the container.
+Docker Compose file, **docker-compose.yml** inside contains information for the database to create container with prerequisite technologies and set up pathing. This includes Apache, MySQL database, and phpMyAdmin images to be installed for the container.
 
-Dockerfile is included in same directory that builds with MySQLi extension 
+**Dockerfile** is included in same directory that builds with MySQLi extension 
 
 To build the container:
-docker-compose build
+`docker-compose build`
 
 
 To start the container:
-docker-compose up -d
+`docker-compose up -d`
 
-db.sql file is the schema that can be imported
+**db.sql** file is the schema that can be imported
